@@ -1,15 +1,20 @@
 HSMM-Pi
 =======
 
-HSMM-Pi is a set of tools designed to easily configure the Raspberry Pi to function as a High-Speed Multimedia (HSMM) wireless mesh node, compatible with Broadband Hamnet (BBHN) and AREDN.  Mesh networks offer amateur radio operators (hams) the ability to operate high-speed data networks in the frequencies shared with unlicenced users of 802.11 b/g/n networking equipment.  Hams can operate HSMM or BBHN at higher power with larger antennas than are available to unlicensed users.  The HSMM-Pi project makes it possible to run an HSMM mesh node on the Raspberry Pi.  The project has been tested to work on other embedded computing platforms, including the BeagleBone and BeagleBone Black.
+HSMM-Pi is a set of tools designed to easily configure the Raspberry Pi to function as a High-Speed Multimedia (HSMM) wireless mesh node, compatible with Broadband Hamnet (BBHN) and [AREDN](https://www.arednmesh.org/).  Mesh networks offer amateur radio operators (hams) the ability to operate high-speed data networks in the frequencies shared with unlicenced users of 802.11 b/g/n networking equipment.  Hams can operate HSMM or BBHN at higher power with larger antennas than are available to unlicensed users.  The HSMM-Pi project makes it possible to run an HSMM mesh node on the Raspberry Pi.  The project has been tested to work on other embedded computing platforms, including the BeagleBone and BeagleBone Black.
 
 The HSMM-Pi project can used by people not possessing an amateur radio license so long as they are in compliance with the transmission rules set by the FCC or the local regulating body.  This typically means sticking with the WiFi antenna provided with your WiFi adapter.
 
-**Note:** the main install.sh script uses the sury.org repository for php5.6 in Raspberrpy Pi OS Buster, which will will only work on Raspberry Pi devices with the ARMv7 architecture and above, from the Raspberry Pi 2 and upward (tested on the Pi 3A+). For ARMv6 (tested on Raspberry Pi Zero W) devices there are special instructions and require an outdated version of Raspberry Pi OS (Jessie).
+**Note:** the main install.sh script uses the sury.org repository for php5.6 in Raspberrpy Pi OS Buster, which will will only work on Raspberry Pi devices with the ARMv7 architecture and above (Raspberry Pi 2 3 & 4, tested on the Pi 3A+). For ARMv6 (tested on Raspberry Pi Zero W) devices there are special instructions and require an outdated version of Raspberry Pi OS (Jessie).
 
-**Note(2):** this repository has been modified to work, and tested on the Raspberry Pi 3A+ and Raspberry Pi Zero W. I cannnot confirm the Beaglebone or Update functionality. I have tested meshing with 2 Pi Zero W's and a 3A+ and it appears to be working.
+**Note(2):** this repository has been modified to work, and tested with a new installation on the Raspberry Pi 3A+ and Raspberry Pi Zero W. I cannnot confirm the Beaglebone or Update functionality. I have tested meshing with 2 Pi Zero W's and a 3A+ and it appears to be working.
 
-HSMM-Pi Blog:
+**Security Notes:** 
+
+1. The ssh port probably should not be exposed to the mesh interface. This means binding the ssh server to the LAN interface, which varies between configurations and can't be easily automatically done for you. In most countries encrypted traffic like ssh is illegal when frequencies are used for amateur radio purposes.
+2. It is strongly recommended not to log into a node you own over the mesh, only do it over an interface directly connected to the node. Your password could be easily intercepted. While we trust our fellow hams, nefarious individuals do scan and capture open WiFi fraffic and may act on that information.
+
+(Original) HSMM-Pi Blog:
 http://hsmmpi.wordpress.com/
 
 For a video tour, see the following YouTube video:
@@ -57,28 +62,37 @@ A node in Internal mode routes traffic throughout the mesh and provides mesh acc
 
 There could be any number of mesh nodes in the Ad-Hoc WiFi Network.  The route among the nodes is managed entirely with OLSR.
 
-I've done all of my testing with N150 USB wifi adapters that use the Ralink 5370 wireless chipset.  These adapters are cheap (~$7 USD), compact, and easy to come by.  They also use drivers that are bundled with most Ubuntu distributions, making setup easy.  The N150 adapter tested included a threaded antenna connector that should make it easy to add a linear amplifier and aftermarket antenna (outside the scope of the HSMM-Pi project).
+~~I've done all of my testing with N150 USB wifi adapters that use the Ralink 5370 wireless chipset.  These adapters are cheap (~$7 USD), compact, and easy to come by.  They also use drivers that are bundled with most Ubuntu distributions, making setup easy.  The N150 adapter tested included a threaded antenna connector that should make it easy to add a linear amplifier and aftermarket antenna (outside the scope of the HSMM-Pi project).~~
+
+This release was tested using internal WiFi on the Pi 3A+ and Pi Zero W.
+
+Differences Between ARMv7 and ARMv6 Installations
+=================================================
+
+The sury.org PHP5.6 distribution is a conflict between how [Debian and Raspbian define "armhf"](https://github.com/MichaIng/DietPi/issues/2794). Installing the ARMv7 PHP5.6 binaries on and ARMv6 system, like the Pi Zero W, will result in "Illegal Instruction" errors and make the whole installation unusable. To solve this I have gone back to the last Raspbian that supports PHP5, Jessie. Jessie is technically still supported by Debian, but may not get security updates from Raspberry Pi Foundation, so these devices should not be connected to the internet, this would also be the same for PHP5 as it is no longer supported and may have security issues. 
+
+If a new ARMv6 device comes out from the Raspberry Pi Foundation, it is very likely Jessie will function on it, and therefore will not work for HSMM.
 
 Raspberry Pi (ARMv7) Installation
-=========================
+=================================
 
 1. Download the latest 32bit [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/) (Full or Lite; only Buster Lite was tested) disk image. The Lite image is suitable for headless installations as it omits the graphical interface, web browser, etc.
 1. Write the image to an SD memory card.
-1. If doing a headless install, follow the [RaspberryPi.org guide here](https://www.raspberrypi.org/documentation/computers/configuration.html)
+1. If doing a headless install, follow the [RaspberryPi.org guide here](https://www.raspberrypi.org/documentation/computers/configuration.html).
 1. If using USB gadget support, follow the [ADA Fruit guide here](https://learn.adafruit.com/turning-your-raspberry-pi-zero-into-a-usb-gadget/ethernet-gadget). It is possible to use the PI3A+ in USB gadget mode, but requires extra settings, [this video](https://www.youtube.com/watch?v=7nDJPidKSPA) shows the simplest way to do this.
-1. Insert the card into a Raspberry Pi
-1. Connect the wired Ethernet port (or USB port for Ethernet over USB gadget) on the Pi to a network with Internet access (Linux users made need to do extra steps, such as sharing internet with USB0 interface)
-1. Apply power to the Pi
+1. Insert the card into a Raspberry Pi.
+1. Connect the wired Ethernet port (or USB port for Ethernet over USB gadget) on the Pi to a network with Internet access (Linux users may need to do extra steps, such as sharing internet with usb0 interface).
+1. Apply power to the Pi.
 1. Login to the Pi through an SSH session, the console, or the terminal application. The username is "pi" and the password is "raspberry".
-1. Do a complete update and upgrade before running config.
+1. Do a complete update and upgrade before running config:
 
         sudo apt update; sudo apt upgrade -y
 1. Run the Raspberry Pi Setup program:
 
         sudo raspi-config
-1. Change the password for the "pi" account
-1. If installing over an SSH connection to the Pi, then I recommend you install "screen" (`sudo apt-get install screen`) to ensure that the installation script is not stopped prematurely if you lose connectivity with the Pi.  This is optional, but I highly recommend using screen if installing over the network.  You can find more info on screen here: http://linux.die.net/man/1/screen
-1. Run the following commands to download the HSMM-Pi project and install
+1. Change the password for the "pi" account.
+1. If installing over an SSH connection to the Pi, then I recommend you install "screen" (`sudo apt-get install screen`) to ensure that the installation script is not stopped prematurely if you lose connectivity with the Pi.  This is optional, but I highly recommend using screen if installing over the network.  You can find more info on screen here: http://linux.die.net/man/1/screen.
+1. Run the following commands to download the HSMM-Pi project and install:
 
         sudo apt install -y git
         git clone https://github.com/mrmabs/hsmm-pi.git
@@ -87,43 +101,45 @@ Raspberry Pi (ARMv7) Installation
 1. Login to the web application on the Pi:
 http://(wired Ethernet IP of the node):8080/ or http://raspberrypi.local:8080/ (over USB)
 1. Access the Admin account using the username "admin" and password "changeme".
-1. Change the password for HSMM-Pi
-1. Configure as either an Internal or Gateway node
+1. Change the password for HSMM-Pi.
+1. Configure as either an Internal or Gateway node (below).
+2. After completing set up you mau need to change your interface from DHCP server to client.
 
 Raspberry Pi (ARMv6) Installation
-=========================
+=================================
 
-1. Download a Raspbian Jessie (Image no longer appears to be available online) or [Raspbian Jessie Lite](https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2017-07-05/) disk image. The Lite image is suitable for headless installations as it omits the graphical interface, web browser, etc. There images outdated and are from 2017 and should not be used for system connecting to the internet.
+1. Download a Raspbian Jessie (full image no longer appears to be available online) or [Raspbian Jessie Lite](https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2017-07-05/) disk image. The Lite image is suitable for headless installations as it omits the graphical interface, web browser, etc. There images outdated and are from 2017 and should not be used for system connecting to the internet.
 1. Write the image to an SD memory card.
 1. If doing a headless install, follow the [RaspberryPi.org guide here](https://www.raspberrypi.org/documentation/computers/configuration.html)
 1. If using USB gadget support, follow the [ADA Fruit guide here](https://learn.adafruit.com/turning-your-raspberry-pi-zero-into-a-usb-gadget/ethernet-gadget).
-1. Insert the card into a Raspberry Pi
-1. Connect the wired Ethernet port (or USB port for Ethernet over USB gadget) on the Pi to a network with Internet access (Linux users made need to do extra steps, such as sharing internet with USB0 interface)
-1. Apply power to the Pi
+1. Insert the card into a Raspberry Pi.
+1. Connect the wired Ethernet port (or USB port for Ethernet over USB gadget) on the Pi to a network with Internet access (Linux users may need to do extra steps, such as sharing internet with usb0 interface).
+1. Apply power to the Pi.
 1. Login to the Pi through an SSH session, the console, or the terminal application. The username is "pi" and the password is "raspberry".
-1. Do a complete update and upgrade before running config.
+1. Do a complete update and upgrade before running config:
 
         sudo apt update; sudo apt upgrade -y
 1. Run the Raspberry Pi Setup program:
 
         sudo raspi-config
-1. Change the password for the "pi" account
-1. If installing over an SSH connection to the Pi, then I recommend you install "screen" (`sudo apt-get install screen`) to ensure that the installation script is not stopped prematurely if you lose connectivity with the Pi.  This is optional, but I highly recommend using screen if installing over the network.  You can find more info on screen here: http://linux.die.net/man/1/screen
-1. Run the following commands to download the HSMM-Pi project and install (make sure you run the pi0 install script)
+1. Change the password for the "pi" account.
+1. If installing over an SSH connection to the Pi, then I recommend you install "screen" (`sudo apt-get install screen`) to ensure that the installation script is not stopped prematurely if you lose connectivity with the Pi.  This is optional, but I highly recommend using screen if installing over the network.  You can find more info on screen here: http://linux.die.net/man/1/screen.
+1. Run the following commands to download the HSMM-Pi project and install (make sure you run the pi0 install script):
 
         sudo apt install -y git
         git clone https://github.com/mrmabs/hsmm-pi.git
         cd hsmm-pi
         sh **install-pi0.sh**
 1. Login to the web application on the Pi:
-http://(wired Ethernet IP of the node):8080/ or http://raspberrypi.local:8080/ (over USB)
+http://(wired Ethernet IP of the node):8080/ or http://raspberrypi.local:8080/ (over USB).
 1. Access the Admin account using the username "admin" and password "changeme".
-1. Change the password for HSMM-Pi
-1. Configure as either an Internal or Gateway node
+1. Change the password for HSMM-Pi.
+1. Configure as either an Internal or Gateway node (below).
+2. After completing set up you mau need to change your interface from DHCP server to client.
 
 
-BeagleBone Black Installation
-=============================
+BeagleBone Black Installation (untested on this release)
+========================================================
 
 1. Download the latest BeagleBone Black Ubuntu 12.04 image: http://www.armhf.com/index.php/boards/beaglebone-black/#precise
 1. Write the image to an SD memory card using the steps on the page referenced in the previous step
@@ -156,8 +172,8 @@ http://(wired Ethernet IP of the node):8080/
 
 
 
-Upgrade Steps
-=============
+Upgrade Steps (untested on this release)
+========================================
 This is experimental, and you should fall back to a fresh installation if things aren't functioning as you'd expect.  This is supported only on the HEAD of the master branch at this time.
 
 1. Login to the host using SSH or the console
