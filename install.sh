@@ -2,7 +2,7 @@
 
 #
 # File: install.sh
-# Authors: Scott Kidder, Clayton Smith
+# Authors: Scott Kidder, Clayton Smith, Marcus B
 # Purpose: This script will configure a newly-imaged Raspberry Pi running
 #   Raspbian Jessie Lite with the dependencies and HSMM-Pi components.
 #
@@ -18,10 +18,12 @@ PROJECT_HOME=${HOME}/hsmm-pi
 
 cd ${HOME}
 
-# https://www.itzgeek.com/how-tos/linux/ubuntu-how-tos/how-to-install-php-5-6-on-ubuntu-16-04-debian-9-8.html
-sudo apt-get install -y apt-transport-https curl
-curl https://packages.sury.org/php/apt.gpg | sudo apt-key add -
-echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php5.list
+# sury.org works in buster as well
+if [ ! -f /etc/apt/sources.list.d/php5.list ]; then
+	sudo apt-get install -y apt-transport-https curl
+	curl https://packages.sury.org/php/apt.gpg | sudo apt-key add -
+	echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php5.list
+fi
 
 # Update list of packages
 sudo apt-get update
@@ -29,16 +31,16 @@ sudo apt-get update
 # Install Web Server deps
 sudo apt-get install -y \
     apache2 \
-    php5.6 \
     sqlite \
-    php5.6-mcrypt \
-    php5.6-sqlite \
     dnsmasq \
     flex \
     gpsd \
     libnet-gpsd3-perl \
     ntp \
     olsrd
+
+# Install legacy php5.6 packages
+sudo apt install -y php5.6 php5.6-mcrypt php5.6-sqlite
 
 # Remove ifplugd if present, as it interferes with olsrd
 sudo apt-get remove -y ifplugd
@@ -52,13 +54,13 @@ if [ -L /etc/resolv.conf ]; then
     sudo touch /etc/resolv.conf
 fi
 
-sudo bash -c "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
+sudo bash -c "echo 'nameserver 1.1.1.1' > /etc/resolv.conf"
 sudo chgrp www-data /etc/resolv.conf
 sudo chmod g+w /etc/resolv.conf
 
-# Checkout the HSMM-Pi project
+ Checkout the HSMM-Pi project
 if [ ! -e ${PROJECT_HOME} ]; then
-    git clone https://github.com/urlgrey/hsmm-pi.git
+    git clone https://github.com/mrmabs/hsmm-pi.git
 else
     cd ${PROJECT_HOME}
     git pull
@@ -125,7 +127,7 @@ fi
 
 # enable port 8080 on the Apache server
 if ! grep "Listen 8080" /etc/apache2/ports.conf; then
-    sudo bash -c "echo 'Listen 8080' >> /etc/apache2/ports.conf"
+    sudo sed -i '0,/Listen [0-9]*/s//Listen 8080/' /etc/apache2/ports.conf
 fi
 
 # allow the www-data user to run the WiFi scanning program, iwlist

@@ -1,5 +1,5 @@
 {
-    "name": "hsmm-pi",
+    "name": "pi/hsmm-pi",
     "require": {
         "cakephp/cakephp": "2.8.*"
     },
