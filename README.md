@@ -71,7 +71,7 @@ Differences Between ARMv7 and ARMv6 Installations
 
 The sury.org PHP5.6 distribution is a conflict between how [Debian and Raspbian define "armhf"](https://github.com/MichaIng/DietPi/issues/2794). Installing the ARMv7 PHP5.6 binaries on and ARMv6 system, like the Pi Zero W, will result in "Illegal Instruction" errors and make the whole installation unusable. To solve this I have gone back to the last Raspbian that supports PHP5, Jessie. Jessie is technically still supported by Debian, but may not get security updates from Raspberry Pi Foundation, so these devices should not be connected to the internet, this would also be the same for PHP5 as it is no longer supported and may have security issues. 
 
-If a new ARMv6 device comes out from the Raspberry Pi Foundation, it is very likely Jessie will function on it, and therefore will not work for HSMM.
+If a new ARMv6 device comes out from the Raspberry Pi Foundation, it is very unlikely Jessie will function on it, and therefore will not work for HSMM.
 
 Raspberry Pi (ARMv7) Installation
 =================================
