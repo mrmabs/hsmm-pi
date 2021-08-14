@@ -51,7 +51,7 @@ sudo bash -c "echo 'nameserver 1.1.1.1' > /etc/resolv.conf"
 sudo chgrp www-data /etc/resolv.conf
 sudo chmod g+w /etc/resolv.conf
 
- Checkout the HSMM-Pi project
+# Checkout the HSMM-Pi project
 if [ ! -e ${PROJECT_HOME} ]; then
     git clone https://github.com/mrmabs/hsmm-pi.git
 else
